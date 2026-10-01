@@ -6,6 +6,7 @@ DPKG_OPTS=(
     -o Dpkg::Options::="--force-confold"
 )
 VAGRANT_LIBVIRT_VERSION=${VAGRANT_LIBVIRT_VERSION:-"latest"}
+VAGRANT_LIBVIRT_REPO=${VAGRANT_LIBVIRT_REPO:-"https://github.com/vagrant-libvirt/vagrant-libvirt.git"}
 
 function version_compare() {
     [[ $1 == $2 ]] && return 0
@@ -512,7 +513,8 @@ function install_vagrant_libvirt() {
         eval install_rake_${distro}
         if [[ ! -d "./vagrant-libvirt" ]]
         then
-            git clone https://github.com/vagrant-libvirt/vagrant-libvirt.git
+            echo "Cloning vagrant-libvirt from: '${VAGRANT_LIBVIRT_REPO}'"
+            git clone ${VAGRANT_LIBVIRT_REPO} vagrant-libvirt
         fi
         pushd vagrant-libvirt
         git checkout ${VAGRANT_LIBVIRT_VERSION#git-}
