@@ -49,7 +49,10 @@ function apt_get() {
 }
 
 function setup_apt() {
-    sudo sed -i "s/# deb-src/deb-src/" /etc/apt/sources.list
+    if [[ -f /etc/apt/sources.list ]]
+    then
+        sudo sed -i "s/# deb-src/deb-src/" /etc/apt/sources.list
+    fi
     # deb822 format, used by default from Ubuntu 24.04 and Debian 12
     for sources in /etc/apt/sources.list.d/*.sources
     do
@@ -164,13 +167,11 @@ function setup_centos() {
 function setup_debian() {
     setup_apt
     apt_get -y "${DPKG_OPTS[@]}" install \
-        dnsmasq \
         ebtables \
         git \
         libvirt-clients \
         libvirt-daemon \
         libvirt-daemon-system \
-        qemu \
         qemu-system-x86 \
         qemu-utils \
         wget \

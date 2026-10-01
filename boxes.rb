@@ -1,11 +1,6 @@
 #!/usr/bin/ruby
 #
 
-APT_ENV_VARS = {
-  'DEBIAN_FRONTEND': 'noninteractive',
-  'DEBCONF_NONINTERACTIVE_SEEN': true,
-}
-
 INSTALL_ENV_VARS = {
   'VAGRANT_LIBVIRT_VERSION': ENV.fetch('QA_VAGRANT_LIBVIRT_VERSION', 'latest'),
   'VAGRANT_LIBVIRT_REPO': ENV.fetch('QA_VAGRANT_LIBVIRT_REPO', 'https://github.com/vagrant-libvirt/vagrant-libvirt.git'),
@@ -27,24 +22,14 @@ BOXES = {
       :box => "cloud-image/ubuntu-26.04",
     },
   },
-  'debian-10' => {
+  'debian-12' => {
     :libvirt => {
-      :box => "generic/debian10",
-      :provision => [
-        {:name => 'disable dns-nameservers', :inline => 'sed -i -e "/^dns-nameserver/g" /etc/network/interfaces', :reboot => true},
-        # restarting dnsmasq can require a retry after everything else to come up correctly.
-        {:name => 'install dnsmasq', :inline => 'apt update && apt install -y dnsmasq && systemctl restart dnsmasq', :env => APT_ENV_VARS},
-      ],
+      :box => "cloud-image/debian-12",
     },
   },
-  'debian-11' => {
+  'debian-13' => {
     :libvirt => {
-      :box => "generic/debian11",
-      :provision => [
-        {:name => 'disable dns-nameservers', :inline => 'sed -i -e "/^dns-nameserver/g" /etc/network/interfaces', :reboot => true},
-        # restarting dnsmasq can require a retry after everything else to come up correctly.
-        {:name => 'install dnsmasq', :inline => 'apt update && apt install -y dnsmasq && systemctl restart dnsmasq', :env => APT_ENV_VARS},
-      ],
+      :box => "cloud-image/debian-13",
     },
   },
   'centos-7' => {
