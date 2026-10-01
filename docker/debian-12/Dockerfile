@@ -1,12 +1,16 @@
-FROM debian:10
+FROM debian:12
 
 SHELL ["/bin/bash", "-c"]
 
+# libvirt on debian authorizes access through polkit, and dbus in the
+# container doesn't pick up the policy for it when installed later on
 RUN apt update \
     && apt install -y \
+        dbus \
         kmod \
         openssh-server \
         openssh-client \
+        polkitd \
         systemd \
         sudo \
     && rm -rf /var/lib/apt/lists \
@@ -27,7 +31,6 @@ RUN systemctl enable ssh \
 
 RUN set -e \
     && sed -i -e 's/Defaults.*requiretty/#&/' /etc/sudoers \
-    && sed -i -ne 'p; s/^deb /deb-src /p' /etc/apt/sources.list \
     ;
 
 RUN set -e \
