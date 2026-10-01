@@ -36,10 +36,6 @@ Vagrant.configure(2) do |config|
         docker.build_dir = "docker/#{name}"
         docker.build_args = "--pull"
         docker.has_ssh = true
-        docker.volumes = [
-          # allow libvirt in the container to trigger loading modules such as ip6tables
-          "/lib/modules:/lib/modules",
-        ]
         docker.create_args = [
           "--privileged",
           "--security-opt", "apparmor=unconfined",
