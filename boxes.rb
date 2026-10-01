@@ -109,6 +109,21 @@ DEFAULT_PROVISION = [
   {:name => 'debug uri', :privileged => false, :inline => 'virsh uri'},
 ]
 
+# Inside a user namespace such as a rootless podman container, libvirt
+# can't set the trusted.* xattrs it uses to record the original owner of
+# files it relabels, nor chown the device nodes it creates in a private
+# /dev for each domain.
+DOCKER_POST_INSTALL = [
+  {:name => 'configure libvirt for containers', :inline => <<-EOC},
+    echo "remember_owner = 0" >> /etc/libvirt/qemu.conf
+    echo "namespaces = []" >> /etc/libvirt/qemu.conf
+    for service in libvirtd virtqemud; do
+      systemctl is-active -q ${service} && systemctl restart ${service}
+    done
+    true
+  EOC
+]
+
 if __FILE__ == $0
   require 'json'
   puts JSON.pretty_generate(BOXES)
