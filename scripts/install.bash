@@ -39,14 +39,26 @@ function restart_libvirt() {
     sudo systemctl restart ${service_name}
 }
 
-function setup_apt() {
-    export DEBIAN_FRONTEND=noninteractive
-    export DEBCONF_NONINTERACTIVE_SEEN=true
+function apt_get() {
+    # sudo-rs, the default sudo from Ubuntu 25.10, doesn't support -E so
+    # pass the environment needed for a noninteractive run explicitly.
+    sudo env \
+        DEBIAN_FRONTEND=noninteractive \
+        DEBCONF_NONINTERACTIVE_SEEN=true \
+        apt-get "$@"
+}
 
+function setup_apt() {
     sudo sed -i "s/# deb-src/deb-src/" /etc/apt/sources.list
-    sudo -E apt-get update
-    sudo -E apt-get -y "${DPKG_OPTS[@]}" upgrade
-    sudo -E apt-get -y build-dep vagrant ruby-libvirt
+    # deb822 format, used by default from Ubuntu 24.04 and Debian 12
+    for sources in /etc/apt/sources.list.d/*.sources
+    do
+        [[ -f ${sources} ]] || continue
+        sudo sed -i "s/^Types: deb$/Types: deb deb-src/" ${sources}
+    done
+    apt_get update
+    apt_get -y "${DPKG_OPTS[@]}" upgrade
+    apt_get -y build-dep ruby-libvirt
 }
 
 function setup_arch() {
@@ -151,7 +163,7 @@ function setup_centos() {
 
 function setup_debian() {
     setup_apt
-    sudo -E apt-get -y "${DPKG_OPTS[@]}" install \
+    apt_get -y "${DPKG_OPTS[@]}" install \
         dnsmasq \
         ebtables \
         git \
@@ -218,25 +230,13 @@ function setup_opensuse-leap() {
     restart_libvirt
 }
 
-function setup_ubuntu_1804() {
-    setup_apt
-    sudo -E apt-get -y "${DPKG_OPTS[@]}" install \
-        git \
-        libvirt-bin \
-        qemu \
-        wget \
-        ;
-    restart_libvirt
-}
-
 function setup_ubuntu() {
     setup_apt
-    sudo -E apt-get -y "${DPKG_OPTS[@]}" install \
+    apt_get -y "${DPKG_OPTS[@]}" install \
         git \
         libvirt-clients \
         libvirt-daemon \
         libvirt-daemon-system \
-        qemu \
         qemu-system-x86 \
         qemu-utils \
         wget \
@@ -304,7 +304,7 @@ function install_rake_centos() {
 }
 
 function install_rake_debian() {
-    sudo apt install -y \
+    apt_get install -y \
         bundler \
         rake
 }
@@ -340,7 +340,7 @@ function install_vagrant_debian() {
     local version=$1
 
     download_vagrant ${version} deb
-    sudo -E dpkg -i /tmp/${DOWNLOADED_VAGRANT_PKG}
+    sudo dpkg -i /tmp/${DOWNLOADED_VAGRANT_PKG}
 }
 
 function install_vagrant_fedora() {

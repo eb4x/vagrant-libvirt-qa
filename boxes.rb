@@ -12,28 +12,19 @@ INSTALL_ENV_VARS = {
 }
 
 BOXES = {
-  'ubuntu-18.04' => {
-    :libvirt => {
-      :box => "generic/ubuntu1804",
-      :provision => [
-        {:inline => 'ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf'},
-      ],
-    },
-  },
-  'ubuntu-20.04' => {
-    :libvirt => {
-      :box => "generic/ubuntu2004",
-      :provision => [
-        {:inline => 'ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf'},
-      ],
-    },
-  },
   'ubuntu-22.04' => {
     :libvirt => {
-      :box => "generic/ubuntu2204",
-      :provision => [
-        {:inline => 'ln -sf ../run/systemd/resolve/resolv.conf /etc/resolv.conf'},
-      ],
+      :box => "cloud-image/ubuntu-22.04",
+    },
+  },
+  'ubuntu-24.04' => {
+    :libvirt => {
+      :box => "cloud-image/ubuntu-24.04",
+    },
+  },
+  'ubuntu-26.04' => {
+    :libvirt => {
+      :box => "cloud-image/ubuntu-26.04",
     },
   },
   'debian-10' => {
