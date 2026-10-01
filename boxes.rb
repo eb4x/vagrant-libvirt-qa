@@ -52,19 +52,16 @@ BOXES = {
       :box => "generic/centos9s",
     },
   },
-  'fedora-34' => {
+  'fedora-43' => {
     :libvirt => {
-      :box => "generic/fedora34",
+      :box => "fedora-cloud-base-43-1.6",
+      :box_url => "https://download.fedoraproject.org/pub/fedora/linux/releases/43/Cloud/x86_64/images/Fedora-Cloud-Base-Vagrant-libvirt-43-1.6.x86_64.vagrant.libvirt.box",
     },
   },
-  'fedora-35' => {
+  'fedora-44' => {
     :libvirt => {
-      :box => "generic/fedora35",
-    },
-  },
-  'fedora-36' => {
-    :libvirt => {
-      :box => "generic/fedora36",
+      :box => "fedora-cloud-base-44-1.7",
+      :box_url => "https://download.fedoraproject.org/pub/fedora/linux/releases/44/Cloud/x86_64/images/Fedora-Cloud-Base-Vagrant-libvirt-44-1.7.x86_64.vagrant.libvirt.box",
     },
   },
   'archlinux' => {

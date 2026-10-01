@@ -1,9 +1,10 @@
-FROM fedora:34
+FROM fedora:44
 
 SHELL ["/bin/bash", "-c"]
 
 RUN dnf update -y && \
     dnf install -y \
+        dnf-plugins-core \
         kmod \
         openssh-clients \
         openssh-server \

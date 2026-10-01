@@ -415,38 +415,6 @@ function patch_vagrant_centos_8() {
     popd
 }
 
-function setup_rpm_sources_fedora() {
-    typeset -n basedir=$1
-    pkg="$2"
-    rpmname="${3:-${pkg}}"
-
-    nvr=$(rpm -q --queryformat "${pkg}-%{version}-%{release}\n" ${rpmname} | uniq)
-    nv=$(rpm -q --queryformat "${pkg}-%{version}\n" ${rpmname} | uniq)
-    mkdir -p ${pkg}
-    pushd ${pkg}
-
-    [[ ! -e ${nvr}.src.rpm ]] && dnf download --source ${rpmname}
-    rpm2cpio ${nvr}.src.rpm | cpio -imdV
-    rm -rf ${nv}
-    tar xf ${nv}.tar.*z
-
-    basedir=$(realpath ${nv})
-    popd
-}
-
-function patch_vagrant_fedora() {
-    mkdir -p patches
-    pushd patches
-
-    setup_rpm_sources_fedora KRB5_DIR krb5 krb5-libs
-    build_krb5 ${KRB5_DIR}
-
-    setup_rpm_sources_fedora LIBSSH_DIR libssh
-    build_libssh ${LIBSSH_DIR}
-
-    popd
-}
-
 function setup_rpm_sources_opensuse-leap() {
     typeset -n basedir=$1
     pkg="$2"

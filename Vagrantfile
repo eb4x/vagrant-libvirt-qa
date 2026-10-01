@@ -64,6 +64,7 @@ Vagrant.configure(2) do |config|
 
       machine.vm.provider :libvirt do |domain, override|
         override.vm.box = settings[:libvirt][:box]
+        override.vm.box_url = settings[:libvirt][:box_url] if settings[:libvirt].key?(:box_url)
         domain.driver = ENV.fetch('VAGRANT_LIBVIRT_DRIVER', 'kvm')
         domain.memory = 4096
         domain.cpus = 2
