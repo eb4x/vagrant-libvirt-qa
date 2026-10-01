@@ -39,9 +39,6 @@ Vagrant.configure(2) do |config|
         docker.volumes = [
           # allow libvirt in the container to trigger loading modules such as ip6tables
           "/lib/modules:/lib/modules",
-          # next two needed for systemd in container
-          "/sys/fs/cgroup:/sys/fs/cgroup:ro",
-          "/sys/fs/cgroup/systemd:/sys/fs/cgroup/systemd:rw",
         ]
         docker.create_args = [
           "--privileged",
