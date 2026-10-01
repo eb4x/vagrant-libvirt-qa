@@ -1,9 +1,12 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 SHELL ["/bin/bash", "-c"]
 
 # undo the minimizing done by upstream as expect to login to the resulting container
-RUN yes | unminimize
+RUN apt update \
+    && apt install -y unminimize \
+    && yes | unminimize \
+    ;
 
 RUN apt update \
     && apt install -y \
