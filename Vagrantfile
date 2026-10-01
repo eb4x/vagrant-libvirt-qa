@@ -56,6 +56,8 @@ Vagrant.configure(2) do |config|
         ).concat(
           ENV.fetch('VAGRANT_LIBVIRT_DEPLOY', 'true') == 'true' ? settings.fetch(:provision, DEFAULT_PROVISION) : []
         ).concat(
+          ENV.fetch('VAGRANT_LIBVIRT_DEPLOY', 'true') == 'true' ? DOCKER_POST_INSTALL : []
+        ).concat(
           settings.fetch(:docker, {}).fetch(:post_install, [])
         ).each do |p|
           override.vm.provision :shell, **p
