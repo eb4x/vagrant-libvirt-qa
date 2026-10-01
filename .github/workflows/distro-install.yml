@@ -10,11 +10,11 @@ on:
 
 jobs:
   generate-matrix:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
     - name: Generate matrix
       id: generate-matrix
       run: |
@@ -24,7 +24,7 @@ jobs:
   verify-install:
     needs: generate-matrix
     timeout-minutes: 15
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-26.04
     env:
       VAGRANT_DEFAULT_PROVIDER: docker
       VAGRANT_LIBVIRT_DRIVER: qemu
@@ -34,20 +34,21 @@ jobs:
         distro: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
         submodules: recursive
     - name: Disable apparmor to allow containers use alternative paths
       run: |
         sudo systemctl stop apparmor
+        sudo apparmor_parser --remove /etc/apparmor.d/unix-chkpwd
     - name: Set up version to test
       run: |
         echo "QA_VAGRANT_LIBVIRT_VERSION=git-$(git submodule status -- vagrant-libvirt | cut -d' ' -f2)" >> ${GITHUB_ENV}
     - name: Set up libvirt
       run: |
         ./scripts/install.bash --vagrant-only
-    - uses: actions/cache@v3.2.3
+    - uses: actions/cache@v6
       with:
         path: ~/.vagrant.d/boxes
         key: ${{ runner.os }}-${{ matrix.distro }}
@@ -63,7 +64,7 @@ jobs:
 
   finish:
     needs: verify-install
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     steps:
     - name: Matrix finished
       run: |
