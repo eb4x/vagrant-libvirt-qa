@@ -7,6 +7,7 @@ updates:
 
   - package-ecosystem: "gitsubmodule"
     directory: "/"
+    target-branch: "integration"
     schedule:
       interval: "daily"
 

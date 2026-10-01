@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - integration
   schedule:
     - cron: '50 12 * * 1-5'
 
