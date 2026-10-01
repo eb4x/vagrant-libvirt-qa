@@ -8,6 +8,7 @@ APT_ENV_VARS = {
 
 INSTALL_ENV_VARS = {
   'VAGRANT_LIBVIRT_VERSION': ENV.fetch('QA_VAGRANT_LIBVIRT_VERSION', 'latest'),
+  'VAGRANT_LIBVIRT_REPO': ENV.fetch('QA_VAGRANT_LIBVIRT_REPO', 'https://github.com/vagrant-libvirt/vagrant-libvirt.git'),
 }
 
 BOXES = {

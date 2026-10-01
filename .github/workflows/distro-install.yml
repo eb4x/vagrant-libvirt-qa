@@ -44,6 +44,7 @@ jobs:
     - name: Set up version to test
       run: |
         echo "QA_VAGRANT_LIBVIRT_VERSION=git-$(git submodule status -- vagrant-libvirt | cut -d' ' -f2)" >> ${GITHUB_ENV}
+        echo "QA_VAGRANT_LIBVIRT_REPO=$(git -C vagrant-libvirt remote get-url origin)" >> ${GITHUB_ENV}
     - name: Set up libvirt
       run: |
         ./scripts/install.bash --vagrant-only
