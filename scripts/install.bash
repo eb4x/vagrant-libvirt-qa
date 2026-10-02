@@ -64,25 +64,22 @@ function setup_apt() {
 }
 
 function setup_arch() {
-    sudo pacman -Suyu --noconfirm --noprogressbar
-    sudo pacman -Qs 'iptables' | grep "local" | grep "iptables " && sudo pacman -Rd --nodeps --noconfirm iptables
-    # need to remove iptables to allow ebtables to be installed
+    sudo pacman -Syu --noconfirm --noprogressbar
     sudo pacman -S --needed --noprogressbar --noconfirm  \
         autoconf \
         automake \
         binutils \
-        bridge-utils \
         dnsmasq \
         git \
         gcc \
-        iptables-nft \
         libvirt \
         libxml2 \
         libxslt \
         make \
+        nftables \
         openbsd-netcat \
-        pkg-config \
-        qemu \
+        pkgconf \
+        qemu-base \
         ruby \
         wget \
         ;
@@ -215,6 +212,9 @@ function download_vagrant() {
         if [[ "${pkgext}" == "rpm" ]]
         then
             pkg="vagrant-${pkgversion}.${arch}.${pkgext}"
+        elif [[ "${pkgext}" == "pkg.tar.zst" ]]
+        then
+            pkg="vagrant-${pkgversion}-${arch}.${pkgext}"
         elif [[ "${pkgext}" == "deb" ]]
         then
             arch="amd64"
@@ -232,7 +232,7 @@ function download_vagrant() {
 function install_rake_arch() {
     sudo pacman -S --needed --noprogressbar --noconfirm  \
         ruby-bundler \
-        rake
+        ruby-rake
 }
 
 function install_rake_centos() {
@@ -263,8 +263,10 @@ function install_rake_ubuntu() {
 }
 
 function install_vagrant_arch() {
-    sudo pacman -S --needed --noprogressbar --noconfirm  \
-        vagrant
+    local version=$1
+
+    download_vagrant ${version} pkg.tar.zst
+    sudo pacman -U --needed --noprogressbar --noconfirm /tmp/${DOWNLOADED_VAGRANT_PKG}
 }
 
 function install_vagrant_centos() {
@@ -296,13 +298,29 @@ function install_vagrant_ubuntu() {
     install_vagrant_debian $@
 }
 
+function use_system_libs() {
+    # Vagrant puts its embedded libs on LD_LIBRARY_PATH when building the
+    # plugin's native extensions, so they're picked over the system ones
+    # both when running tools and when linking against libvirt. Remove
+    # those that conflict, so the system ones are used instead.
+    local lib
+    for lib in "$@"
+    do
+        sudo rm -f /opt/vagrant/embedded/lib/lib${lib}.so*
+    done
+}
+
+function patch_vagrant_arch() {
+    # /bin/sh links libreadline, and the embedded one can't resolve the
+    # termcap symbols of the system's libtinfo. libvirt needs the symbol
+    # versions of the system's libcurl.
+    use_system_libs readline curl
+}
+
 function patch_vagrant_opensuse-leap() {
-    # The libreadline embedded in vagrant doesn't link libtinfo, and can't
-    # resolve the versioned termcap symbols in openSUSE's libtinfo. /bin/sh
-    # on openSUSE links libreadline, so it fails to start with the embedded
-    # libs on LD_LIBRARY_PATH, as when building the plugin's native
-    # extensions. Use the system libreadline instead.
-    sudo rm -f /opt/vagrant/embedded/lib/libreadline.so*
+    # /bin/sh links libreadline, and the embedded one can't resolve the
+    # termcap symbols of the system's libtinfo.
+    use_system_libs readline
 }
 
 function install_vagrant() {
