@@ -153,32 +153,18 @@ function setup_fedora() {
 }
 
 function setup_opensuse-leap() {
-    # perl-XML-XPath is used for getting information from zypper
-    # for package details to download the src.rpm's.
-    sudo zypper modifyrepo --enable repo-source
     sudo zypper refresh
-    # blocks install of libvirt qemu system package
-    if rpm -q busybox-gzip 2>/dev/null 2>&1
-    then
-        sudo zypper remove --no-confirm busybox-gzip
-    fi
     sudo zypper install --no-confirm \
-        byacc \
-        cmake \
         gcc \
-        gcc-c++ \
         git \
         libguestfs \
-        libssh4 \
         libvirt \
         libvirt-devel \
         make \
         qemu-kvm \
-        perl-XML-XPath \
         polkit \
         ruby-devel \
         wget \
-        zlib-devel \
         ;
     restart_libvirt
 }
@@ -269,8 +255,8 @@ function install_rake_fedora() {
 
 function install_rake_opensuse-leap() {
     sudo zypper install --no-confirm \
-        ruby2.5-rubygem-bundler \
-        ruby2.5-rubygem-rake
+        'rubygem(bundler)' \
+        'rubygem(rake)'
 }
 
 function install_rake_ubuntu() {
@@ -311,61 +297,13 @@ function install_vagrant_ubuntu() {
     install_vagrant_debian $@
 }
 
-function build_libssh() {
-    local dir=${1}
-
-    mkdir -p ${dir}-build
-    pushd ${dir}-build
-    cmake ${dir} -DOPENSSL_ROOT_DIR=/opt/vagrant/embedded/
-    make
-    sudo cp lib/libssh* /opt/vagrant/embedded/lib64
-    popd
-}
-
-function build_krb5() {
-    local dir=${1}
-
-    pushd ${dir}/src
-    ./configure
-    make
-    sudo cp -P lib/crypto/libk5crypto.* /opt/vagrant/embedded/lib64/
-    popd
-}
-
-function setup_rpm_sources_opensuse-leap() {
-    typeset -n basedir=$1
-    pkg="$2"
-    rpmname="${3:-${pkg}}"
-
-    nvr=$(rpm -q --queryformat "${pkg}-%{version}-%{release}\n" ${rpmname} | uniq)
-    nv=$(rpm -q --queryformat "${pkg}-%{version}\n" ${rpmname} | uniq)
-    mkdir -p ${pkg}
-    pushd ${pkg}
-
-    repository=$(zypper --quiet --no-refresh --xmlout search --type srcpackage --match-exact --details ${pkg} | xpath -q -e 'string(//solvable/@repository)')
-    url=$(zypper --quiet --xmlout repos | xpath -q -e "//repo[@name='${repository}']/url/text()")
-
-    [[ ! -e ${nvr}.src.rpm ]] && wget ${url}/src/${nvr}.src.rpm
-    rpm2cpio ${nvr}.src.rpm | cpio -imdV
-    rm -rf ${nv}
-    tar xf ${nv}.tar.*z
-
-    basedir=$(realpath ${nv})
-    popd
-}
-
 function patch_vagrant_opensuse-leap() {
-    set -x
-    mkdir -p patches
-    pushd patches
-
-    setup_rpm_sources_opensuse-leap KRB5_DIR krb5
-    build_krb5 ${KRB5_DIR}
-
-    setup_rpm_sources_opensuse-leap LIBSSH_DIR libssh libssh4
-    build_libssh ${LIBSSH_DIR}
-
-    popd
+    # The libreadline embedded in vagrant doesn't link libtinfo, and can't
+    # resolve the versioned termcap symbols in openSUSE's libtinfo. /bin/sh
+    # on openSUSE links libreadline, so it fails to start with the embedded
+    # libs on LD_LIBRARY_PATH, as when building the plugin's native
+    # extensions. Use the system libreadline instead.
+    sudo rm -f /opt/vagrant/embedded/lib/libreadline.so*
 }
 
 function install_vagrant() {

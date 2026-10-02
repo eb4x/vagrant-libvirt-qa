@@ -1,4 +1,4 @@
-FROM opensuse/leap:15.4
+FROM opensuse/leap:16.0
 
 
 SHELL ["/bin/bash", "-c"]
@@ -9,7 +9,7 @@ RUN zypper refresh \
         kmod \
         polkit \
         openssh \
-        systemd-sysvinit \
+        systemd \
         sudo \
     ;
 
@@ -26,12 +26,7 @@ RUN systemctl enable sshd \
     ;
 
 RUN set -e \
-    && sed -i -e 's/Defaults.*requiretty/#&/' /etc/sudoers \
-    ;
-
-RUN set -e \
-    && groupadd vagrant \
-    && useradd --create-home -s /bin/bash -G vagrant vagrant \
+    && useradd --create-home -s /bin/bash vagrant \
     && echo -n 'vagrant:vagrant' | chpasswd \
     && echo 'vagrant ALL = NOPASSWD: ALL' > /etc/sudoers.d/vagrant \
     && chmod 440 /etc/sudoers.d/vagrant \
