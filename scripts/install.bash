@@ -64,25 +64,18 @@ function setup_apt() {
 }
 
 function setup_arch() {
-    sudo pacman -Syu --noconfirm --noprogressbar
-    sudo pacman -S --needed --noprogressbar --noconfirm  \
-        autoconf \
-        automake \
-        binutils \
+    sudo pacman -Syu --needed --noprogressbar --noconfirm \
         dnsmasq \
-        git \
         gcc \
         libvirt \
-        libxml2 \
-        libxslt \
         make \
         nftables \
         openbsd-netcat \
         pkgconf \
         qemu-base \
-        ruby \
-        wget \
         ;
+    # used by this script rather than the plugin
+    sudo pacman -S --needed --noprogressbar --noconfirm git wget
     sudo systemctl enable --now libvirtd
 }
 
@@ -91,39 +84,25 @@ function setup_centos() {
     sudo dnf -y update
     sudo dnf -y install \
         @virtualization-host-environment \
-        autoconf \
-        automake \
-        binutils \
-        byacc \
-        cmake \
         gcc \
-        gcc-c++ \
-        git \
-        libguestfs-tools \
-        libvirt \
         libvirt-devel \
         make \
-        qemu-kvm \
-        rpm-build \
         ruby-devel \
-        wget \
-        zlib-devel \
         ;
+    # used by this script rather than the plugin
+    sudo dnf -y install git wget
     restart_libvirt
 }
 
 function setup_debian() {
     setup_apt
     apt_get -y "${DPKG_OPTS[@]}" install \
-        ebtables \
-        git \
-        libvirt-clients \
-        libvirt-daemon \
         libvirt-daemon-system \
         qemu-system-x86 \
         qemu-utils \
-        wget \
         ;
+    # used by this script rather than the plugin
+    apt_get -y "${DPKG_OPTS[@]}" install git wget
     restart_libvirt
 }
 
@@ -131,20 +110,12 @@ function setup_fedora() {
     sudo dnf -y update
     sudo dnf -y install \
         @virtualization \
-        autoconf \
-        automake \
-        binutils \
-        byacc \
-        cmake \
         gcc \
-        gcc-c++ \
-        git \
-        libguestfs-tools \
         libvirt-devel \
         make \
-        wget \
-        zlib-devel \
         ;
+    # used by this script rather than the plugin
+    sudo dnf -y install git wget
     restart_libvirt
 }
 
@@ -152,31 +123,20 @@ function setup_opensuse-leap() {
     sudo zypper refresh
     sudo zypper install --no-confirm \
         gcc \
-        git \
-        libguestfs \
         libvirt \
         libvirt-devel \
         make \
-        qemu-kvm \
         polkit \
+        qemu-kvm \
         ruby-devel \
-        wget \
         ;
+    # used by this script rather than the plugin
+    sudo zypper install --no-confirm git wget
     restart_libvirt
 }
 
 function setup_ubuntu() {
-    setup_apt
-    apt_get -y "${DPKG_OPTS[@]}" install \
-        git \
-        libvirt-clients \
-        libvirt-daemon \
-        libvirt-daemon-system \
-        qemu-system-x86 \
-        qemu-utils \
-        wget \
-        ;
-    restart_libvirt
+    setup_debian $@
 }
 
 function setup_distro() {
@@ -273,7 +233,7 @@ function install_vagrant_centos() {
     local version=$1
 
     download_vagrant ${version} rpm
-    sudo -E rpm -Uh --force /tmp/${DOWNLOADED_VAGRANT_PKG}
+    sudo -E rpm -Uh /tmp/${DOWNLOADED_VAGRANT_PKG}
 }
 
 function install_vagrant_debian() {
