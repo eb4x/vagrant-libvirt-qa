@@ -64,6 +64,16 @@ jobs:
       run: |
         vagrant provision ${{ matrix.distro }}
 
+    - name: show target distro state on failure
+      if: failure()
+      run: |
+        set +e
+        id=$(cat .vagrant/machines/${{ matrix.distro }}/docker/id) || exit 0
+        docker ps --all --filter id=${id}
+        docker logs ${id} 2>&1 | tail -n 100
+        docker exec ${id} systemctl --failed --no-pager
+        docker exec ${id} journalctl --boot --no-pager --lines 300
+
   finish:
     needs: verify-install
     runs-on: ubuntu-26.04
