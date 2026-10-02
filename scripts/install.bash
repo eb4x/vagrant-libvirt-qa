@@ -76,7 +76,7 @@ function setup_arch() {
         qemu-base \
         ;
     # used by this script rather than the plugin
-    sudo pacman -S --needed --noprogressbar --noconfirm git wget
+    sudo pacman -S --needed --noprogressbar --noconfirm git curl
     sudo systemctl enable --now libvirtd
 }
 
@@ -91,7 +91,7 @@ function setup_centos() {
         ruby-devel \
         ;
     # used by this script rather than the plugin
-    sudo dnf -y install git wget
+    sudo dnf -y install git /usr/bin/curl
     restart_libvirt
 }
 
@@ -103,7 +103,7 @@ function setup_debian() {
         qemu-utils \
         ;
     # used by this script rather than the plugin
-    apt_get -y "${DPKG_OPTS[@]}" install git wget
+    apt_get -y "${DPKG_OPTS[@]}" install git curl
     restart_libvirt
 }
 
@@ -116,7 +116,7 @@ function setup_fedora() {
         make \
         ;
     # used by this script rather than the plugin
-    sudo dnf -y install git wget
+    sudo dnf -y install git /usr/bin/curl
     restart_libvirt
 }
 
@@ -132,7 +132,7 @@ function setup_opensuse-leap() {
         ruby-devel \
         ;
     # used by this script rather than the plugin
-    sudo zypper install --no-confirm git wget
+    sudo zypper install --no-confirm git curl
     restart_libvirt
 }
 
@@ -184,7 +184,7 @@ function download_vagrant() {
     fi
 
 
-    wget --no-verbose https://releases.hashicorp.com/vagrant/${version}/${pkg} -O /tmp/${pkg}.tmp
+    curl --fail --silent --show-error --location https://releases.hashicorp.com/vagrant/${version}/${pkg} --output /tmp/${pkg}.tmp
     mv /tmp/${pkg}.tmp /tmp/${pkg}
 
     DOWNLOADED_VAGRANT_PKG=${pkg}
@@ -379,7 +379,7 @@ DISTRO_VERSION=${DISTRO_VERSION:-$(awk -F= '/^VERSION_ID/{print $2}' /etc/os-rel
 if [[ -z ${VAGRANT_VERSION+x} ]]
 then
     VAGRANT_VERSION="$(
-        wget -qO - https://checkpoint-api.hashicorp.com/v1/check/vagrant 2>/dev/null | \
+        curl --fail --silent https://checkpoint-api.hashicorp.com/v1/check/vagrant | \
             tr ',' '\n' | grep current_version | cut -d: -f2 | tr -d '"'
         )"
 fi
