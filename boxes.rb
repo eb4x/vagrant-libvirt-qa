@@ -58,7 +58,14 @@ BOXES = {
   },
   'archlinux' => {
     :libvirt => {
-      :box => "archlinux/archlinux",
+      :box => "cloud-image/arch-linux",
+      :provision => [
+        # Upgrading the kernel removes the modules of the running one, which
+        # libvirt needs for creating the bridges of its virtual networks.
+        {:name => 'upgrade system', :reboot => true, :inline => <<-EOC},
+          pacman -Syu --noconfirm --noprogressbar
+        EOC
+      ],
     },
   },
   'opensuse-leap' => {
