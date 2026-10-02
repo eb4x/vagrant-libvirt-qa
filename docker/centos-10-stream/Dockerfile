@@ -1,11 +1,12 @@
-FROM centos:8
+FROM quay.io/centos/centos:stream10
 
 SHELL ["/bin/bash", "-c"]
 
-RUN sed -i -e 's/mirrorlist/#mirrorlist/g' -e 's|#baseurl=http://mirror.centos.org|baseurl=https://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-
 RUN dnf update -y && \
-    dnf install -y \
+    dnf install -y --allowerasing \
+        coreutils \
+        curl \
+        dnf-plugins-core \
         kmod \
         openssh-clients \
         openssh-server \
@@ -50,4 +51,4 @@ RUN set -e \
 
 
 EXPOSE 22
-CMD ["/usr/sbin/init"]
+ENTRYPOINT ["/usr/sbin/init"]
