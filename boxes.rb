@@ -32,24 +32,16 @@ BOXES = {
       :box => "cloud-image/debian-13",
     },
   },
-  'centos-7' => {
-    :libvirt => {
-      :box => "generic/centos7",
-    },
-  },
-  'centos-8' => {
-    :libvirt => {
-      :box => "generic/centos8",
-    },
-  },
-  'centos-8-stream' => {
-    :libvirt => {
-      :box => "generic/centos8s",
-    },
-  },
   'centos-9-stream' => {
     :libvirt => {
-      :box => "generic/centos9s",
+      :box => "centos-stream-9",
+      :box_url => "https://cloud.centos.org/centos/9-stream/x86_64/images/CentOS-Stream-Vagrant-Libvirt-9-latest.x86_64.vagrant-libvirt.box",
+    },
+  },
+  'centos-10-stream' => {
+    :libvirt => {
+      :box => "centos-stream-10",
+      :box_url => "https://cloud.centos.org/centos/10-stream/x86_64/images/CentOS-Stream-Vagrant-Libvirt-10-latest.x86_64.vagrant-libvirt.box",
     },
   },
   'fedora-43' => {

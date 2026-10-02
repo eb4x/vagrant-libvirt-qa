@@ -90,54 +90,6 @@ function setup_arch() {
     sudo systemctl enable --now libvirtd
 }
 
-function setup_centos_7() {
-    sudo yum -y update
-    sudo yum -y install centos-release-qemu-ev
-    sudo yum -y update
-    sudo yum -y install \
-        autoconf \
-        automake \
-        binutils \
-        cmake \
-        gcc \
-        git \
-        libguestfs-tools \
-        libvirt \
-        libvirt-devel \
-        make \
-        qemu \
-        qemu-kvm-ev \
-        ruby-devel \
-        wget \
-        ;
-    restart_libvirt
-}
-
-function setup_centos_8() {
-    sudo dnf -y update
-    sudo dnf -y install \
-        @virt \
-        autoconf \
-        automake \
-        binutils \
-        byacc \
-        cmake \
-        gcc \
-        gcc-c++ \
-        git \
-        libguestfs-tools \
-        libvirt \
-        libvirt-devel \
-        make \
-        qemu-kvm \
-        rpm-build \
-        ruby-devel \
-        wget \
-        zlib-devel \
-        ;
-    restart_libvirt
-}
-
 function setup_centos() {
     sudo dnf config-manager --set-enabled crb
     sudo dnf -y update
@@ -377,41 +329,6 @@ function build_krb5() {
     ./configure
     make
     sudo cp -P lib/crypto/libk5crypto.* /opt/vagrant/embedded/lib64/
-    popd
-}
-
-function setup_rpm_sources_centos() {
-    typeset -n basedir=$1
-    pkg="$2"
-    rpmname="${3:-${pkg}}"
-
-    [[ ! -d ${pkg} ]] && git clone https://git.centos.org/rpms/${pkg}
-    pushd ${pkg}
-    nvr=$(rpm -q --queryformat "${pkg}-%{version}-%{release}" ${rpmname} | uniq)
-    nv=$(rpm -q --queryformat "${pkg}-%{version}" ${rpmname} | uniq)
-    git checkout $(git tag -l | grep "${nvr}\$" | tail -n1)
-    into_srpm.sh -d c8s
-    pushd BUILD
-    tar xf ../SOURCES/${nv}.tar.*z
-
-    basedir=$(realpath ${nv})
-    popd
-    popd
-}
-
-function patch_vagrant_centos_8() {
-    mkdir -p patches
-    pushd patches
-    [[ ! -d centos-git-common ]] && git clone https://git.centos.org/centos-git-common
-    export PATH=$(readlink -f ./centos-git-common):$PATH
-    chmod a+x ./centos-git-common/*.sh
-
-    setup_rpm_sources_centos LIBSSH_DIR libssh
-    build_libssh ${LIBSSH_DIR}
-
-    setup_rpm_sources_centos KRB5_DIR krb5 krb5-libs
-    build_krb5 ${KRB5_DIR}
-
     popd
 }
 
