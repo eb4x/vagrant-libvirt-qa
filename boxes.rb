@@ -62,7 +62,15 @@ BOXES = {
   },
   'opensuse-leap' => {
     :libvirt => {
-      :box => "opensuse/Leap-15.4.x86_64",
+      :box => "opensuse-leap-16.0",
+      :box_url => "https://download.opensuse.org/distribution/leap/16.0/appliances/Leap-16.0-Minimal-VM.x86_64-Vagrant.box",
+      :provision => [
+        # kernel-default-base lacks the sch_htb module, without which libvirt
+        # fails to start networks as it adds an htb qdisc to their bridges.
+        {:name => 'install full kernel', :reboot => true, :inline => <<-EOC},
+          zypper --non-interactive install --force-resolution kernel-default
+        EOC
+      ],
     },
   },
 }
