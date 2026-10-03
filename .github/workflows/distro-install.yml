@@ -8,6 +8,13 @@ on:
   schedule:
     - cron: '50 12 * * 1-5'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   generate-matrix:
     runs-on: ubuntu-26.04
