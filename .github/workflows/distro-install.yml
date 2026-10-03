@@ -43,10 +43,6 @@ jobs:
       run: |
         sudo systemctl stop apparmor
         sudo apparmor_parser --remove /etc/apparmor.d/unix-chkpwd
-    - name: Set up version to test
-      run: |
-        echo "QA_VAGRANT_LIBVIRT_VERSION=git-$(git submodule status -- vagrant-libvirt | cut -d' ' -f2)" >> ${GITHUB_ENV}
-        echo "QA_VAGRANT_LIBVIRT_REPO=$(git -C vagrant-libvirt remote get-url origin)" >> ${GITHUB_ENV}
     - name: Install Vagrant
       run: |
         curl --fail --silent --show-error https://apt.releases.hashicorp.com/gpg | \
@@ -72,6 +68,8 @@ jobs:
 
     - name: test vagrant-libvirt in target distro
       run: |
+        export QA_VAGRANT_LIBVIRT_VERSION=git-$(git submodule status -- vagrant-libvirt | cut -d' ' -f2)
+        export QA_VAGRANT_LIBVIRT_REPO=$(git -C vagrant-libvirt remote get-url origin)
         vagrant provision ${{ matrix.distro }}
 
     - name: show target distro state on failure
