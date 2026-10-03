@@ -333,8 +333,8 @@ function install_vagrant_libvirt() {
 }
 
 
-OPTIONS=o
-LONGOPTS=vagrant-only,vagrant-version:
+OPTIONS=
+LONGOPTS=vagrant-version:
 
 # -pass arguments only via   -- "$@"   to separate them correctly
 ! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
@@ -346,14 +346,8 @@ fi
 
 eval set -- "$PARSED"
 
-VAGRANT_ONLY=0
-
 while true; do
     case "$1" in
-        -o|--vagrant-only)
-            VAGRANT_ONLY=1
-            shift
-            ;;
         --vagrant-version)
             VAGRANT_VERSION=$2
             shift 2
@@ -374,7 +368,7 @@ echo "Starting vagrant-libvirt installation script"
 DISTRO=${DISTRO:-$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"' | tr '[A-Z]' '[a-z]')}
 DISTRO_VERSION=${DISTRO_VERSION:-$(awk -F= '/^VERSION_ID/{print $2}' /etc/os-release | tr -d '"' | tr '[A-Z]' '[a-z]' | tr -d '.')}
 
-[[ ${VAGRANT_ONLY} -eq 0 ]] && setup_distro ${DISTRO} ${DISTRO_VERSION}
+setup_distro ${DISTRO} ${DISTRO_VERSION}
 
 if [[ -z ${VAGRANT_VERSION+x} ]]
 then
@@ -386,6 +380,6 @@ fi
 
 install_vagrant ${VAGRANT_VERSION} ${DISTRO} ${DISTRO_VERSION}
 
-[[ ${VAGRANT_ONLY} -eq 0 ]] && install_vagrant_libvirt ${DISTRO}
+install_vagrant_libvirt ${DISTRO}
 
 echo "Finished vagrant-libvirt installation script"
